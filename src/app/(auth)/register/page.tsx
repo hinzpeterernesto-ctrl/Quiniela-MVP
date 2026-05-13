@@ -1,7 +1,6 @@
 'use client'
-
-import { useState } from 'react'
-import { useRouter } from 'next/navigation'
+import { useState, Suspense } from 'react'
+import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import { toast } from 'sonner'
 import { createClient } from '@/lib/supabase/client'
@@ -9,8 +8,10 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
 
-export default function RegisterPage() {
+function RegisterContent() {
   const router = useRouter()
+  const searchParams = useSearchParams()
+  const next = searchParams.get('next') ?? '/dashboard'
   const supabase = createClient()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -37,8 +38,16 @@ export default function RegisterPage() {
       setLoading(false)
       return
     }
-    toast.success('¡Cuenta creada! Revisa tu email para confirmar.')
-    router.push('/login')
+    toast.success('¡Cuenta creada!')
+    
+    // Auto-login
+    const { error: loginError } = await supabase.auth.signInWithPassword({ email, password })
+    if (loginError) {
+      router.push('/login')
+      return
+    }
+    router.push(next)
+    router.refresh()
   }
 
   return (
@@ -80,12 +89,20 @@ export default function RegisterPage() {
           </Button>
           <p className="text-center text-sm text-muted-foreground">
             ¿Ya tienes cuenta?{' '}
-            <Link href="/login" className="text-primary hover:underline">
+            <Link href={`/login${next !== '/dashboard' ? `?next=${encodeURIComponent(next)}` : ''}`} className="text-primary hover:underline">
               Inicia sesión
             </Link>
           </p>
         </form>
       </CardContent>
     </Card>
+  )
+}
+
+export default function RegisterPage() {
+  return (
+    <Suspense fallback={<p className="text-center text-muted-foreground">Cargando...</p>}>
+      <RegisterContent />
+    </Suspense>
   )
 }
