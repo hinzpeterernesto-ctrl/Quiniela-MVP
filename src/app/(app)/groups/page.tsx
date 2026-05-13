@@ -13,7 +13,8 @@ export default async function GroupsPage() {
     .eq('user_id', user.id)
     .maybeSingle()
 
-  const group = membership?.groups as any
+    const group = membership?.groups as Record<string, unknown>
+
 
   return (
     <div className="min-h-screen bg-background p-6">
@@ -65,7 +66,7 @@ export default async function GroupsPage() {
                 </li>
                 <li className="flex gap-2">
                   <span className="text-primary font-bold">2.</span>
-                  Va a "Mi Grupo" en el menú
+                  Va a Mi Grupo en el menú
                 </li>
                 <li className="flex gap-2">
                   <span className="text-primary font-bold">3.</span>

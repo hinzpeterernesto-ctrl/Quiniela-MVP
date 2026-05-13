@@ -16,7 +16,7 @@ export function JoinGroup() {
     if (!code.trim()) return
     setLoading(true)
     const supabase = createClient()
-    const { data, error } = await supabase.rpc('join_group_by_code', {
+    const { error } = await supabase.rpc('join_group_by_code',  {
       p_invite_code: code.toUpperCase().trim()
     })
     if (error) {

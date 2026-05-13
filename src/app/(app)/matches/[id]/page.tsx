@@ -5,6 +5,7 @@ import { createClient } from '@/lib/supabase/client'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { toast } from 'sonner'
+
 interface Match {
   id: string
   home_score: number | null
@@ -15,6 +16,7 @@ interface Match {
   home_team: { name: string; flag_url: string }
   away_team: { name: string; flag_url: string }
 }
+
 export default function PredictPage() {
   const router = useRouter()
   const params = useParams()
@@ -26,6 +28,7 @@ export default function PredictPage() {
   const [loading, setLoading] = useState(false)
   const [existing, setExisting] = useState<{ id: string } | null>(null)
   const [ready, setReady] = useState(false)
+
   useEffect(() => {
     if (!id) return
     async function load() {
@@ -39,7 +42,8 @@ export default function PredictPage() {
       setReady(true)
     }
     load()
-  }, [id])
+  }, [id, supabase])
+
   async function handleSubmit() {
     if (!match) return
     setLoading(true)
@@ -55,9 +59,12 @@ export default function PredictPage() {
     else { toast.success('Prediccion guardada!'); router.push('/matches') }
     setLoading(false)
   }
+
   if (!ready) return <div className="min-h-screen bg-background flex items-center justify-center"><p className="text-muted-foreground">Cargando...</p></div>
   if (!match) return <div className="min-h-screen bg-background flex items-center justify-center"><p className="text-muted-foreground">No encontrado</p></div>
+
   const canPredict = new Date(match.kickoff_at) > new Date() && match.status === 'scheduled'
+
   return (
     <div className="min-h-screen bg-background p-6">
       <div className="max-w-md mx-auto">
